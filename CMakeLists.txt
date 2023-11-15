@@ -10,15 +10,26 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
+set(SRC_FILES
+    src/main.cpp
+    src/KeyHandler.cpp
+)
+set(RES_DIR "res")
+
+add_executable(${CMAKE_PROJECT_NAME} ${SRC_FILES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE sfml-graphics)
 target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_17)
+target_compile_definitions(${CMAKE_PROJECT_NAME}
+  PUBLIC
+    RES_DIR="${CMAKE_SOURCE_DIR}/${RES_DIR}/"
+    FONT_DIR="${CMAKE_SOURCE_DIR}/${RES_DIR}/font/"
+)
 
 if(WIN32)
     add_custom_command(
         TARGET ${CMAKE_PROJECT_NAME}
         COMMENT "Copy OpenAL DLL"
-        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:CMakeSFMLProject>
+        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
         VERBATIM)
 endif()
 
