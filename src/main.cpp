@@ -1,12 +1,23 @@
 #include <SFML/Graphics.hpp>
 #include <array>
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
+#include <thread>
 
+#include "CharacterManager.hpp"
 #include "KeyHandler.hpp"
+#include "Player.hpp"
+#include "Pyramid.hpp"
+#include "SFML/Graphics/CircleShape.hpp"
+#include "SFML/Graphics/ConvexShape.hpp"
 
 sf::Font font;
+
+constexpr std::size_t kWindowWidth{1920U};
+constexpr std::size_t kWindowHeight{1080U};
 
 class KeyStatusDrawable : public sf::Drawable {
   public:
@@ -36,12 +47,19 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    auto window = sf::RenderWindow{{1920U, 1080U}, "CMake SFML Project"};
+    auto window = sf::RenderWindow{{kWindowWidth, kWindowHeight}, "CMake SFML Project"};
     window.setFramerateLimit(144);
     window.setKeyRepeatEnabled(false);
 
-    KeyHandler key_handler;
-    KeyStatusDrawable key_status_drawable(key_handler);
+    KeyHandler keyHandler;
+    KeyStatusDrawable key_status_drawable(keyHandler);
+
+    pyramid::Pyramid pyramid{sf::Vector2f{window.getSize().x / 2.0F, 200.0F}};
+
+    CharacterManager characterManager;
+    characterManager.createPlayer(pyramid::CubePosition{5, 5});
+    characterManager.createBall();
+    characterManager.createCoily();
 
     while (window.isOpen()) {
         for (auto event = sf::Event{}; window.pollEvent(event);) {
@@ -51,11 +69,11 @@ int main() {
                 break;
 
             case sf::Event::KeyPressed:
-                key_handler.update(event.key.code, true);
+                keyHandler.update(event.key.code, true);
                 break;
 
             case sf::Event::KeyReleased:
-                key_handler.update(event.key.code, false);
+                keyHandler.update(event.key.code, false);
                 break;
 
             default:
@@ -63,11 +81,20 @@ int main() {
             }
         }
 
+        characterManager.update();
+
         window.clear();
 
+        pyramid.draw(window);
+
         window.draw(key_status_drawable);
+        for (auto& character : characterManager.mCharacters) {
+            window.draw(character->mSprite);
+        }
 
         window.display();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     return EXIT_SUCCESS;

@@ -3,19 +3,19 @@
 void KeyHandler::update(const sf::Keyboard::Key& key, const bool active) {
     switch (key) {
     case sf::Keyboard::Key::Left:
-        movement_keys_.left = active;
+        mMovementKeys.left = active;
         break;
 
     case sf::Keyboard::Key::Right:
-        movement_keys_.right = active;
+        mMovementKeys.right = active;
         break;
 
     case sf::Keyboard::Key::Up:
-        movement_keys_.up = active;
+        mMovementKeys.up = active;
         break;
 
     case sf::Keyboard::Key::Down:
-        movement_keys_.down = active;
+        mMovementKeys.down = active;
         break;
 
     default:

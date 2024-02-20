@@ -11,14 +11,29 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 set(SRC_FILES
-    src/main.cpp
     src/KeyHandler.cpp
+    src/Pyramid.cpp
+    src/main.cpp
 )
 set(RES_DIR "res")
 
 add_executable(${CMAKE_PROJECT_NAME} ${SRC_FILES})
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE sfml-graphics)
-target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_17)
+
+target_link_libraries(${CMAKE_PROJECT_NAME}
+  PRIVATE
+    sfml-graphics
+)
+
+target_compile_features(${CMAKE_PROJECT_NAME}
+  PRIVATE
+    cxx_std_17
+)
+
+target_compile_options(${CMAKE_PROJECT_NAME}
+  PUBLIC
+    -g
+)
+
 target_compile_definitions(${CMAKE_PROJECT_NAME}
   PUBLIC
     RES_DIR="${CMAKE_SOURCE_DIR}/${RES_DIR}/"

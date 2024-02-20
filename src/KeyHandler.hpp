@@ -16,13 +16,13 @@ struct MovementKeys {
 class KeyHandler {
   public:
     void update(const sf::Keyboard::Key& key, const bool active);
-    bool left() const { return movement_keys_.left; }
-    bool right() const { return movement_keys_.right; }
-    bool up() const { return movement_keys_.up; }
-    bool down() const { return movement_keys_.down; }
+    bool left() const { return mMovementKeys.left; }
+    bool right() const { return mMovementKeys.right; }
+    bool up() const { return mMovementKeys.up; }
+    bool down() const { return mMovementKeys.down; }
 
   private:
-    MovementKeys movement_keys_;
+    MovementKeys mMovementKeys;
 };
 
 #endif // KEY_HANDLER_HPP
