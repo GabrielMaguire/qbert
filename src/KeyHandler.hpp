@@ -2,10 +2,11 @@
 #define KEY_HANDLER_HPP
 
 #include <SFML/Window/Keyboard.hpp>
-#include <iostream>
 
-struct MovementKeys {
-    MovementKeys() : left{false}, right{false}, up{false}, down{false} {}
+enum class Movement { kNone, kLeft, kRight, kUp, kDown };
+
+struct ArrowKeys {
+    ArrowKeys() : left{false}, right{false}, up{false}, down{false} {}
 
     bool left : 1;
     bool right : 1;
@@ -16,13 +17,17 @@ struct MovementKeys {
 class KeyHandler {
   public:
     void update(const sf::Keyboard::Key& key, const bool active);
-    bool left() const { return mMovementKeys.left; }
-    bool right() const { return mMovementKeys.right; }
-    bool up() const { return mMovementKeys.up; }
-    bool down() const { return mMovementKeys.down; }
+
+    bool left() const { return mArrowKeys.left; }
+    bool right() const { return mArrowKeys.right; }
+    bool up() const { return mArrowKeys.up; }
+    bool down() const { return mArrowKeys.down; }
+
+    Movement getMovement() const { return mCurrentMovement; }
 
   private:
-    MovementKeys mMovementKeys;
+    ArrowKeys mArrowKeys;
+    Movement mCurrentMovement{Movement::kNone};
 };
 
 #endif // KEY_HANDLER_HPP

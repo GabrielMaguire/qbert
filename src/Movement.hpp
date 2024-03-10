@@ -3,6 +3,10 @@
 
 #include <cstdint>
 
-enum class Movement : uint8_t { kUpLeft, kUpRight, kDownLeft, kDownRight };
+namespace pyramid {
+
+enum class Movement : uint8_t { kNone, kUpLeft, kUpRight, kDownLeft, kDownRight };
+
+} // namespace pyramid
 
 #endif // MOVEMENT_HPP

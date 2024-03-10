@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Movement.hpp"
+#include "SFML/Graphics/CircleShape.hpp"
 
 namespace pyramid {
 
@@ -17,15 +18,12 @@ struct CubePosition {
     int y{};
 };
 
-namespace cube {
+sf::Vector2f movementToVector(Movement m);
+void updatePosition(CubePosition& pos, pyramid::Movement m);
 
 constexpr float kSideLength{75.0F};
 constexpr float kVertexXOffset{kSideLength * 0.8660254F}; // sqrt(3)/2
 constexpr float kVertexYOffset{kSideLength * 0.5F};
-
-sf::Vector2f movementToVector(Movement m);
-void updateCubePosition(CubePosition& pos, Movement m);
-sf::Vector2f cubePositionToVector(const CubePosition& pos);
 
 class Cube {
   public:
@@ -50,19 +48,9 @@ class Cube {
     const uint8_t mMaxActivation;
 };
 
-} // namespace cube
-
 class Pyramid {
   public:
-    Pyramid(sf::Vector2f top = {0.0F, 0.0F}) : mTop{top} {
-        for (uint8_t i{0U}; i < kHeight; ++i) {
-            for (uint8_t j{0U}; j <= i; ++j) {
-                sf::Vector2f offset{((2 * j) - i) * cube::kVertexXOffset,
-                                    i * (cube::kSideLength + cube::kVertexYOffset)};
-                mCubes.emplace_back(cube::Cube{top + offset});
-            }
-        }
-    }
+    Pyramid(sf::Vector2f top = {0.0F, 0.0F});
 
     void draw(sf::RenderWindow& window) {
         for (auto& cube : mCubes) {
@@ -70,11 +58,15 @@ class Pyramid {
         }
     }
 
+    sf::Vector2f positionToVector(const CubePosition& pos) const;
+
     static constexpr uint8_t kHeight{7U};
+    static const sf::Vector2f kCubeDownLeft;
+    static const sf::Vector2f kCubeDownRight;
 
     const sf::Vector2f mTop;
 
-    std::vector<cube::Cube> mCubes;
+    std::vector<Cube> mCubes;
 };
 
 } // namespace pyramid

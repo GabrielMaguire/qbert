@@ -10,15 +10,31 @@
 #include "ICharacter.hpp"
 #include "Player.hpp"
 #include "Pyramid.hpp"
+#include "SFML/System/Vector2.hpp"
 
 class CharacterManager {
   public:
     using CharacterList = std::vector<std::shared_ptr<ICharacter>>;
 
+    CharacterManager(const pyramid::Pyramid& pyramid) : mPyramid{pyramid} {}
+
+    void draw(sf::RenderWindow& window) {
+        for (auto& character : mCharacters) {
+            window.draw(character->mSprite);
+        }
+    }
+
+    void initialize() {
+        for (auto& character : mCharacters) {
+            character->mSprite.setPosition(mPyramid.positionToVector(character->mPos));
+        }
+    }
+
     void update() {
         for (auto& character : mCharacters) {
-            // character->mPos = ;
-            // character->mSprite.move(pyramid::movementToVector(character->getMovement()));
+            pyramid::Movement movement{character->getMovement()};
+            pyramid::updatePosition(character->mPos, movement);
+            character->mSprite.setPosition(mPyramid.positionToVector(character->mPos));
         }
     }
 
@@ -36,7 +52,8 @@ class CharacterManager {
             std::make_shared<CoilyEnemy>(std::forward<Args>(args)...));
     }
 
-    // private:
+  private:
+    const pyramid::Pyramid& mPyramid;
     CharacterList mCharacters;
 };
 

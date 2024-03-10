@@ -1,31 +1,43 @@
 #ifndef COILY_ENEMY_HPP
 #define COILY_ENEMY_HPP
 
+#include <SFML/Graphics/Color.hpp>
+
 #include "ICharacter.hpp"
 #include "Movement.hpp"
 
 class CoilyEnemy : public ICharacter {
   public:
     CoilyEnemy() {
-        mSprite.setFillColor({255U, 0U, 255U});
-        mSprite.setRadius(20U);
+        constexpr float kRadius{20.0F};
+        mSprite.setRadius(kRadius);
+        mSprite.setOrigin(kRadius, kRadius);
+        mSprite.setFillColor(sf::Color::Magenta);
     }
 
-    Movement getMovement() override {
-        static Movement movement{Movement::kDownLeft};
+    pyramid::Movement getMovement() override {
+        static pyramid::Movement movement{pyramid::Movement::kDownLeft};
 
         switch (movement) {
-        case Movement::kUpLeft:
-            movement = Movement::kUpRight;
+        case pyramid::Movement::kNone:
+            movement = pyramid::Movement::kUpRight;
+            break;
 
-        case Movement::kUpRight:
-            movement = Movement::kDownLeft;
+        case pyramid::Movement::kUpLeft:
+            movement = pyramid::Movement::kUpRight;
+            break;
 
-        case Movement::kDownLeft:
-            movement = Movement::kDownRight;
+        case pyramid::Movement::kUpRight:
+            movement = pyramid::Movement::kDownLeft;
+            break;
 
-        case Movement::kDownRight:
-            movement = Movement::kUpLeft;
+        case pyramid::Movement::kDownLeft:
+            movement = pyramid::Movement::kDownRight;
+            break;
+
+        case pyramid::Movement::kDownRight:
+            movement = pyramid::Movement::kUpLeft;
+            break;
         }
 
         return movement;

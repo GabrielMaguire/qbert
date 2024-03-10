@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <cstdint>
 
 #include "Movement.hpp"
 #include "Pyramid.hpp"
@@ -12,10 +13,11 @@ class ICharacter {
     ICharacter(pyramid::CubePosition pos = {}) : mPos{pos} {}
     virtual ~ICharacter() {}
 
+    uint64_t mId;
     pyramid::CubePosition mPos{};
     sf::CircleShape mSprite;
 
-    virtual Movement getMovement() = 0;
+    virtual pyramid::Movement getMovement() = 0;
     virtual void die() {
         //
     }

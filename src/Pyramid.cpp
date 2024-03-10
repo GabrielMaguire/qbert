@@ -2,11 +2,10 @@
 
 #include <SFML/System/Vector2.hpp>
 
+#include "MathUtils.hpp"
 #include "Movement.hpp"
 
 namespace pyramid {
-
-namespace cube {
 
 const sf::Vector2f Cube::kP1Offset{0.0F, -kSideLength};
 const sf::Vector2f Cube::kP2Offset{kVertexXOffset, -kVertexYOffset};
@@ -40,13 +39,27 @@ void Cube::draw(sf::RenderWindow& window) {
     window.draw(mRightFace);
 }
 
-} // namespace cube
+Pyramid::Pyramid(sf::Vector2f top) : mTop{top} {
+    for (uint8_t i{0U}; i < kHeight; ++i) {
+        for (uint8_t j{0U}; j <= i; ++j) {
+            sf::Vector2f offset{((2 * j) - i) * kVertexXOffset,
+                                i * (kSideLength + kVertexYOffset)};
+            mCubes.emplace_back(Cube{top + offset});
+        }
+    }
+}
+
+const sf::Vector2f Pyramid::kCubeDownLeft{-kVertexXOffset, kVertexYOffset + kSideLength};
+const sf::Vector2f Pyramid::kCubeDownRight{kVertexXOffset, kVertexYOffset + kSideLength};
 
 sf::Vector2f movementToVector(Movement m) {
-    static constexpr float kVertical{cube::kSideLength * 1.5F};
-    static constexpr float kHorizontal{cube::kSideLength * 0.8660254F}; // sqrt(3)/2
+    static constexpr float kVertical{kSideLength * 1.5F};
+    static constexpr float kHorizontal{kSideLength * 0.8660254F}; // sqrt(3)/2
 
     switch (m) {
+    case Movement::kNone:
+        return {0.0F, 0.0F};
+
     case Movement::kUpLeft:
         return {-kHorizontal, -kVertical};
 
@@ -61,8 +74,11 @@ sf::Vector2f movementToVector(Movement m) {
     }
 }
 
-void updateCubePosition(CubePosition& pos, Movement m) {
+void updatePosition(CubePosition& pos, Movement m) {
     switch (m) {
+    case Movement::kNone:
+        break;
+
     case Movement::kUpLeft:
         pos.x -= 1;
         break;
@@ -81,6 +97,10 @@ void updateCubePosition(CubePosition& pos, Movement m) {
     }
 }
 
-sf::Vector2f cubePositionToVector(const CubePosition& pos) { return {}; }
+sf::Vector2f Pyramid::positionToVector(const CubePosition& pos) const {
+    static const sf::Vector2f centerOffset{0.0F, -kSideLength / 2.0F};
+    return mTop + scalarMult(pos.x, kCubeDownRight) + scalarMult(pos.y, kCubeDownLeft) +
+           centerOffset;
+}
 
 } // namespace pyramid
