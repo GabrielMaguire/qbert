@@ -1,10 +1,10 @@
 #ifndef BALL_ENEMY_HPP
 #define BALL_ENEMY_HPP
 
-#include <SFML/Graphics/Color.hpp>
-
 #include "ICharacter.hpp"
 #include "Movement.hpp"
+
+#include <SFML/Graphics/Color.hpp>
 
 class BallEnemy : public ICharacter {
   public:

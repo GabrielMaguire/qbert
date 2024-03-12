@@ -1,13 +1,13 @@
 #ifndef KEY_STATUS_DRAWABLE_HPP
 #define KEY_STATUS_DRAWABLE_HPP
 
+#include "KeyHandler.hpp"
+
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <array>
 #include <cstdint>
-
-#include "KeyHandler.hpp"
-#include "SFML/Graphics/Font.hpp"
 
 class KeyStatusDrawable : public sf::Drawable {
   public:

@@ -11,6 +11,7 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 set(SRC_FILES
+    src/CharacterManager.cpp
     src/KeyHandler.cpp
     src/Pyramid.cpp
     src/main.cpp

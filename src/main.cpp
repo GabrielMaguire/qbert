@@ -1,3 +1,10 @@
+#include "CharacterManager.hpp"
+#include "CubePosition.hpp"
+#include "KeyHandler.hpp"
+#include "KeyStatusDrawable.hpp"
+#include "Player.hpp"
+#include "Pyramid.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/ConvexShape.hpp>
@@ -8,12 +15,6 @@
 #include <iostream>
 #include <memory>
 #include <thread>
-
-#include "CharacterManager.hpp"
-#include "KeyHandler.hpp"
-#include "KeyStatusDrawable.hpp"
-#include "Player.hpp"
-#include "Pyramid.hpp"
 
 sf::Font font;
 
@@ -37,7 +38,7 @@ int main() {
     CharacterManager characterManager{pyramid};
     characterManager.createPlayer(keyHandler, pyramid::CubePosition{0, 0});
     characterManager.createBall();
-    characterManager.createCoily();
+    // characterManager.createCoily();
     characterManager.initialize();
 
     while (window.isOpen()) {

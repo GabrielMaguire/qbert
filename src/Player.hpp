@@ -1,12 +1,13 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
-#include <SFML/Graphics/Color.hpp>
-
+#include "CubePosition.hpp"
 #include "ICharacter.hpp"
 #include "KeyHandler.hpp"
 #include "Movement.hpp"
 #include "Pyramid.hpp"
+
+#include <SFML/Graphics/Color.hpp>
 
 class Player : public ICharacter {
   public:

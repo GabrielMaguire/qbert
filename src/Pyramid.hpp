@@ -1,25 +1,19 @@
 #ifndef PYRAMID_HPP
 #define PYRAMID_HPP
 
+#include "CubePosition.hpp"
+#include "Movement.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/ConvexShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <cstdint>
-#include <vector>
-
-#include "Movement.hpp"
-#include "SFML/Graphics/CircleShape.hpp"
+#include <unordered_map>
 
 namespace pyramid {
 
-struct CubePosition {
-    int x{};
-    int y{};
-};
-
 sf::Vector2f movementToVector(Movement m);
-void updatePosition(CubePosition& pos, pyramid::Movement m);
 
 constexpr float kSideLength{75.0F};
 constexpr float kVertexXOffset{kSideLength * 0.8660254F}; // sqrt(3)/2
@@ -27,7 +21,7 @@ constexpr float kVertexYOffset{kSideLength * 0.5F};
 
 class Cube {
   public:
-    Cube(sf::Vector2f origin, uint8_t maxActivation = 1U,
+    Cube(sf::Vector2f origin, std::uint8_t maxActivation = 1U,
          sf::Color topColor = {152U, 171U, 238U}, sf::Color leftColor = {29U, 36U, 202U},
          sf::Color rightColor = {32U, 22U, 88U});
 
@@ -45,7 +39,7 @@ class Cube {
     static const sf::Vector2f kP2Offset;
     static const sf::Vector2f kP3Offset;
 
-    const uint8_t mMaxActivation;
+    const std::uint8_t mMaxActivation;
 };
 
 class Pyramid {
@@ -53,20 +47,25 @@ class Pyramid {
     Pyramid(sf::Vector2f top = {0.0F, 0.0F});
 
     void draw(sf::RenderWindow& window) {
-        for (auto& cube : mCubes) {
+        for (auto& [position, cube] : mCubes) {
             cube.draw(window);
         }
     }
 
-    sf::Vector2f positionToVector(const CubePosition& pos) const;
+    sf::Vector2f characterPositionToVector(const CubePosition& pos) const;
+    void updatePosition(CubePosition& pos, pyramid::Movement m) const;
+    bool isPositionInBounds(const CubePosition& pos) const;
 
-    static constexpr uint8_t kHeight{7U};
+    static constexpr std::uint8_t kHeight{7U};
+
     static const sf::Vector2f kCubeDownLeft;
     static const sf::Vector2f kCubeDownRight;
 
-    const sf::Vector2f mTop;
+  private:
+    sf::Vector2f positionToVector(const CubePosition& pos) const;
 
-    std::vector<Cube> mCubes;
+    const sf::Vector2f mTop;
+    std::unordered_map<CubePosition, Cube> mCubes;
 };
 
 } // namespace pyramid

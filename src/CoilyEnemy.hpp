@@ -1,10 +1,10 @@
 #ifndef COILY_ENEMY_HPP
 #define COILY_ENEMY_HPP
 
-#include <SFML/Graphics/Color.hpp>
-
 #include "ICharacter.hpp"
 #include "Movement.hpp"
+
+#include <SFML/Graphics/Color.hpp>
 
 class CoilyEnemy : public ICharacter {
   public:

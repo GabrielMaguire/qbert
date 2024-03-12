@@ -1,9 +1,11 @@
 #include "Pyramid.hpp"
 
-#include <SFML/System/Vector2.hpp>
-
+#include "CubePosition.hpp"
 #include "MathUtils.hpp"
 #include "Movement.hpp"
+
+#include <SFML/System/Vector2.hpp>
+#include <cstdint>
 
 namespace pyramid {
 
@@ -11,7 +13,7 @@ const sf::Vector2f Cube::kP1Offset{0.0F, -kSideLength};
 const sf::Vector2f Cube::kP2Offset{kVertexXOffset, -kVertexYOffset};
 const sf::Vector2f Cube::kP3Offset{kVertexXOffset, kVertexYOffset};
 
-Cube::Cube(sf::Vector2f origin, uint8_t maxActivation, sf::Color topColor,
+Cube::Cube(sf::Vector2f origin, std::uint8_t maxActivation, sf::Color topColor,
            sf::Color leftColor, sf::Color rightColor)
     : mMaxActivation{maxActivation} {
     mTopFace.setFillColor(topColor);
@@ -40,11 +42,10 @@ void Cube::draw(sf::RenderWindow& window) {
 }
 
 Pyramid::Pyramid(sf::Vector2f top) : mTop{top} {
-    for (uint8_t i{0U}; i < kHeight; ++i) {
-        for (uint8_t j{0U}; j <= i; ++j) {
-            sf::Vector2f offset{((2 * j) - i) * kVertexXOffset,
-                                i * (kSideLength + kVertexYOffset)};
-            mCubes.emplace_back(Cube{top + offset});
+    for (uint8_t y{0U}; y < kHeight; ++y) {
+        for (uint8_t x{0U}; x < (kHeight - y); ++x) {
+            const CubePosition pos{x, y};
+            mCubes.emplace(pos, Cube{positionToVector(pos)});
         }
     }
 }
@@ -74,7 +75,7 @@ sf::Vector2f movementToVector(Movement m) {
     }
 }
 
-void updatePosition(CubePosition& pos, Movement m) {
+void Pyramid::updatePosition(CubePosition& pos, Movement m) const {
     switch (m) {
     case Movement::kNone:
         break;
@@ -97,10 +98,17 @@ void updatePosition(CubePosition& pos, Movement m) {
     }
 }
 
+bool Pyramid::isPositionInBounds(const CubePosition& pos) const {
+    return mCubes.find(pos) != mCubes.end();
+}
+
 sf::Vector2f Pyramid::positionToVector(const CubePosition& pos) const {
-    static const sf::Vector2f centerOffset{0.0F, -kSideLength / 2.0F};
-    return mTop + scalarMult(pos.x, kCubeDownRight) + scalarMult(pos.y, kCubeDownLeft) +
-           centerOffset;
+    return mTop + scalarMult(pos.x, kCubeDownRight) + scalarMult(pos.y, kCubeDownLeft);
+}
+
+sf::Vector2f Pyramid::characterPositionToVector(const CubePosition& pos) const {
+    static const sf::Vector2f topFaceOffset{0.0F, -kSideLength / 2.0F};
+    return positionToVector(pos) + topFaceOffset;
 }
 
 } // namespace pyramid
