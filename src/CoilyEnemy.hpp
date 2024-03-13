@@ -1,12 +1,14 @@
 #ifndef COILY_ENEMY_HPP
 #define COILY_ENEMY_HPP
 
-#include "ICharacter.hpp"
+#include "Character.hpp"
 #include "Movement.hpp"
 
-#include <SFML/Graphics/Color.hpp>
+#include "SFML/Graphics/CircleShape.hpp"
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/System/Vector2.hpp"
 
-class CoilyEnemy : public ICharacter {
+class CoilyEnemy : public Character {
   public:
     CoilyEnemy() {
         constexpr float kRadius{20.0F};
@@ -14,6 +16,8 @@ class CoilyEnemy : public ICharacter {
         mSprite.setOrigin(kRadius, kRadius);
         mSprite.setFillColor(sf::Color::Magenta);
     }
+
+    void draw(sf::RenderWindow& window) const override { window.draw(mSprite); }
 
     pyramid::Movement getMovement() override {
         static pyramid::Movement movement{pyramid::Movement::kDownLeft};
@@ -42,6 +46,17 @@ class CoilyEnemy : public ICharacter {
 
         return movement;
     }
+
+    void setSpritePosition(const sf::Vector2f& spritePos) override {
+        mSprite.setPosition(spritePos);
+    }
+
+    pyramid::CubeAction getCubeAction() override {
+        return pyramid::CubeAction::kNone;
+    }
+
+  private:
+    sf::CircleShape mSprite;
 };
 
 #endif // COILY_ENEMY_HPP

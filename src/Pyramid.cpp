@@ -4,7 +4,8 @@
 #include "MathUtils.hpp"
 #include "Movement.hpp"
 
-#include <SFML/System/Vector2.hpp>
+#include "SFML/System/Vector2.hpp"
+
 #include <cstdint>
 
 namespace pyramid {
@@ -42,8 +43,8 @@ void Cube::draw(sf::RenderWindow& window) {
 }
 
 Pyramid::Pyramid(sf::Vector2f top) : mTop{top} {
-    for (uint8_t y{0U}; y < kHeight; ++y) {
-        for (uint8_t x{0U}; x < (kHeight - y); ++x) {
+    for (std::uint8_t y{0U}; y < kHeight; ++y) {
+        for (std::uint8_t x{0U}; x < (kHeight - y); ++x) {
             const CubePosition pos{x, y};
             mCubes.emplace(pos, Cube{positionToVector(pos)});
         }

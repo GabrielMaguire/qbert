@@ -1,23 +1,26 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
+#include "Character.hpp"
 #include "CubePosition.hpp"
-#include "ICharacter.hpp"
 #include "KeyHandler.hpp"
 #include "Movement.hpp"
+
 #include "Pyramid.hpp"
+#include "SFML/Graphics/CircleShape.hpp"
+#include "SFML/Graphics/Color.hpp"
 
-#include <SFML/Graphics/Color.hpp>
-
-class Player : public ICharacter {
+class Player : public Character {
   public:
-    Player(const KeyHandler& keyHandler, pyramid::CubePosition pos = {})
-        : mKeyHandler{keyHandler}, ICharacter{pos} {
+    Player(const KeyHandler& keyHandler, pyramid::CubePosition cubePos = {})
+        : mKeyHandler{keyHandler}, Character{cubePos} {
         constexpr float kRadius{20.0F};
         mSprite.setRadius(kRadius);
         mSprite.setOrigin(kRadius, kRadius);
         mSprite.setFillColor(sf::Color::Green);
     }
+
+    void draw(sf::RenderWindow& window) const override { window.draw(mSprite); }
 
     pyramid::Movement getMovement() override {
         switch (mKeyHandler.getMovement()) {
@@ -43,7 +46,16 @@ class Player : public ICharacter {
         }
     }
 
+    void setSpritePosition(const sf::Vector2f& spritePos) override {
+        mSprite.setPosition(spritePos);
+    }
+
+    pyramid::CubeAction getCubeAction() override {
+        return pyramid::CubeAction::kActivate;
+    }
+
   private:
+    sf::CircleShape mSprite;
     const KeyHandler& mKeyHandler;
 };
 

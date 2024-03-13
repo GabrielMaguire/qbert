@@ -5,9 +5,10 @@
 #include "Player.hpp"
 #include "Pyramid.hpp"
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/ConvexShape.hpp>
+#include "SFML/Graphics.hpp"
+#include "SFML/Graphics/CircleShape.hpp"
+#include "SFML/Graphics/ConvexShape.hpp"
+
 #include <array>
 #include <chrono>
 #include <cstdint>

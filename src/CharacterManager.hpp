@@ -3,7 +3,7 @@
 
 #include "BallEnemy.hpp"
 #include "CoilyEnemy.hpp"
-#include "ICharacter.hpp"
+#include "Character.hpp"
 #include "Player.hpp"
 #include "Pyramid.hpp"
 
@@ -14,7 +14,7 @@
 
 class CharacterManager {
   public:
-    CharacterManager(const pyramid::Pyramid& pyramid) : mPyramid{pyramid} {}
+    CharacterManager(pyramid::Pyramid& pyramid) : mPyramid{pyramid} {}
 
     void initialize();
     void update();
@@ -43,8 +43,8 @@ class CharacterManager {
         return idGen++;
     }
 
-    const pyramid::Pyramid& mPyramid;
-    std::unordered_map<IdType, std::shared_ptr<ICharacter>> mCharacters;
+    pyramid::Pyramid& mPyramid;
+    std::unordered_map<IdType, std::shared_ptr<Character>> mCharacters;
 };
 
 #endif // CHARACTER_MANAGER_HPP

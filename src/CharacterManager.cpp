@@ -6,8 +6,8 @@
 
 void CharacterManager::initialize() {
     for (auto& [id, character] : mCharacters) {
-        character->mSprite.setPosition(
-            mPyramid.characterPositionToVector(character->mPos));
+        character->setSpritePosition(
+            mPyramid.characterPositionToVector(character->mCubePos));
     }
 }
 
@@ -15,12 +15,24 @@ void CharacterManager::update() {
     std::vector<IdType> outOfBoundsCharacters{};
 
     for (auto& [id, character] : mCharacters) {
-        pyramid::Movement movement{character->getMovement()};
-        mPyramid.updatePosition(character->mPos, movement);
+        mPyramid.updatePosition(character->mCubePos, character->getMovement());
 
-        if (mPyramid.isPositionInBounds(character->mPos)) {
-            character->mSprite.setPosition(
-                mPyramid.characterPositionToVector(character->mPos));
+        if (mPyramid.isPositionInBounds(character->mCubePos)) {
+            character->setSpritePosition(
+                mPyramid.characterPositionToVector(character->mCubePos));
+
+            switch (character->getCubeAction()) {
+            case pyramid::CubeAction::kNone:
+                break;
+
+            case pyramid::CubeAction::kActivate:
+                mPyramid.activate(character->mCubePos);
+                break;
+
+            case pyramid::CubeAction::kDeactivate:
+                mPyramid.deactivate(character->mCubePos);
+                break;
+            }
         } else {
             outOfBoundsCharacters.emplace_back(id);
         }
@@ -33,6 +45,6 @@ void CharacterManager::update() {
 
 void CharacterManager::draw(sf::RenderWindow& window) {
     for (auto& [id, character] : mCharacters) {
-        window.draw(character->mSprite);
+        character->draw(window);
     }
 }
