@@ -1,5 +1,6 @@
 #include "CharacterManager.hpp"
 
+#include "CubePosition.hpp"
 #include "Pyramid.hpp"
 
 #include <vector>
@@ -7,7 +8,7 @@
 void CharacterManager::initialize() {
     for (auto& [id, character] : mCharacters) {
         character->setSpritePosition(
-            mPyramid.characterPositionToVector(character->mCubePos));
+            mPyramid.characterPositionToVector(character->getPosition()));
     }
 }
 
@@ -15,23 +16,27 @@ void CharacterManager::update() {
     std::vector<IdType> outOfBoundsCharacters{};
 
     for (auto& [id, character] : mCharacters) {
-        mPyramid.updatePosition(character->mCubePos, character->getMovement());
+        pyramid::CubePosition updatedPosition{mPyramid.getUpdatedPosition(
+            character->getPosition(), character->getMovement())};
+        character->setPosition(updatedPosition);
 
-        if (mPyramid.isPositionInBounds(character->mCubePos)) {
+        if (mPyramid.isPositionInBounds(updatedPosition)) {
             character->setSpritePosition(
-                mPyramid.characterPositionToVector(character->mCubePos));
+                mPyramid.characterPositionToVector(updatedPosition));
 
-            switch (character->getCubeAction()) {
-            case pyramid::CubeAction::kNone:
-                break;
+            if (character->isNewPosition()) {
+                switch (character->getCubeAction()) {
+                case pyramid::CubeAction::kNone:
+                    break;
 
-            case pyramid::CubeAction::kActivate:
-                mPyramid.activate(character->mCubePos);
-                break;
+                case pyramid::CubeAction::kActivate:
+                    mPyramid.activate(updatedPosition);
+                    break;
 
-            case pyramid::CubeAction::kDeactivate:
-                mPyramid.deactivate(character->mCubePos);
-                break;
+                case pyramid::CubeAction::kDeactivate:
+                    mPyramid.deactivate(updatedPosition);
+                    break;
+                }
             }
         } else {
             outOfBoundsCharacters.emplace_back(id);
