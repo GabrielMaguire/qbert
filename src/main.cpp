@@ -2,19 +2,13 @@
 #include "CubePosition.hpp"
 #include "KeyHandler.hpp"
 #include "KeyStatusDrawable.hpp"
-#include "Player.hpp"
 #include "Pyramid.hpp"
 
-#include "SFML/Graphics.hpp"
-#include "SFML/Graphics/CircleShape.hpp"
-#include "SFML/Graphics/ConvexShape.hpp"
+#include "SFML/Window/Event.hpp"
 
-#include <array>
+#include <atomic>
 #include <chrono>
-#include <cstdint>
 #include <cstdlib>
-#include <iostream>
-#include <memory>
 #include <thread>
 
 sf::Font font;
@@ -42,25 +36,34 @@ int main() {
     // characterManager.createCoily();
     characterManager.initialize();
 
-    while (window.isOpen()) {
-        for (auto event = sf::Event{}; window.pollEvent(event);) {
-            switch (event.type) {
-            case sf::Event::Closed:
-                window.close();
-                break;
+    std::atomic_bool runInputHandler{true};
 
-            case sf::Event::KeyPressed:
-                keyHandler.update(event.key.code, true);
-                break;
+    std::thread inputHandler{[&runInputHandler, &window, &keyHandler] {
+        while (runInputHandler) {
+            for (sf::Event event; window.waitEvent(event);) {
+                switch (event.type) {
+                case sf::Event::Closed:
+                    window.close();
+                    break;
 
-            case sf::Event::KeyReleased:
-                keyHandler.update(event.key.code, false);
-                break;
+                case sf::Event::KeyPressed:
+                    keyHandler.update(event.key.code, true);
+                    break;
 
-            default:
-                break;
+                case sf::Event::KeyReleased:
+                    keyHandler.update(event.key.code, false);
+                    break;
+
+                default:
+                    break;
+                }
             }
         }
+    }};
+
+    while (window.isOpen()) {
+        std::chrono::steady_clock::time_point begin_loop{
+            std::chrono::steady_clock::now()};
 
         characterManager.update();
 
@@ -72,8 +75,16 @@ int main() {
 
         window.display();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::chrono::steady_clock::time_point end_processing{
+            std::chrono::steady_clock::now()};
+        std::chrono::duration<double, std::milli> processing_dt{end_processing -
+                                                                begin_loop};
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(500U) - processing_dt);
     }
+
+    runInputHandler = false;
+    inputHandler.join();
 
     return EXIT_SUCCESS;
 }
