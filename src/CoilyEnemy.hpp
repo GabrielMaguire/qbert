@@ -10,7 +10,7 @@
 
 class CoilyEnemy : public Character {
   public:
-    CoilyEnemy() {
+    CoilyEnemy(Character::IdType id) : Character{id} {
         constexpr float kRadius{20.0F};
         mSprite.setRadius(kRadius);
         mSprite.setOrigin(kRadius, kRadius);
@@ -19,7 +19,7 @@ class CoilyEnemy : public Character {
 
     void draw(sf::RenderWindow& window) const override { window.draw(mSprite); }
 
-    pyramid::Movement getMovement() override {
+    pyramid::Movement getMovement() const override {
         static pyramid::Movement movement{pyramid::Movement::kDownLeft};
 
         switch (movement) {
@@ -51,8 +51,12 @@ class CoilyEnemy : public Character {
         mSprite.setPosition(spritePos);
     }
 
-    pyramid::CubeAction getCubeAction() override {
+    pyramid::CubeAction getCubeAction() const override {
         return pyramid::CubeAction::kNone;
+    }
+
+    CharacterInteraction getInteraction() const override {
+        return CharacterInteraction::kHostile;
     }
 
   private:

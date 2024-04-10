@@ -12,8 +12,9 @@
 
 class Player : public Character {
   public:
-    Player(const KeyHandler& keyHandler, pyramid::CubePosition cubePos = {})
-        : mKeyHandler{keyHandler}, Character{cubePos} {
+    Player(Character::IdType id, const KeyHandler& keyHandler,
+           pyramid::CubePosition cubePos = {})
+        : mKeyHandler{keyHandler}, Character{id, cubePos} {
         constexpr float kRadius{20.0F};
         mSprite.setRadius(kRadius);
         mSprite.setOrigin(kRadius, kRadius);
@@ -22,7 +23,7 @@ class Player : public Character {
 
     void draw(sf::RenderWindow& window) const override { window.draw(mSprite); }
 
-    pyramid::Movement getMovement() override {
+    pyramid::Movement getMovement() const override {
         switch (mKeyHandler.getMovement()) {
         case Movement::kNone:
             return pyramid::Movement::kNone;
@@ -50,8 +51,12 @@ class Player : public Character {
         mSprite.setPosition(spritePos);
     }
 
-    pyramid::CubeAction getCubeAction() override {
+    pyramid::CubeAction getCubeAction() const override {
         return pyramid::CubeAction::kActivate;
+    }
+
+    CharacterInteraction getInteraction() const override {
+        return CharacterInteraction::kVulnerable;
     }
 
   private:

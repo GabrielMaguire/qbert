@@ -2,12 +2,11 @@
 #define CHARACTER_MANAGER_HPP
 
 #include "BallEnemy.hpp"
-#include "CoilyEnemy.hpp"
 #include "Character.hpp"
+#include "CoilyEnemy.hpp"
 #include "Player.hpp"
 #include "Pyramid.hpp"
 
-#include <cstdint>
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -21,30 +20,31 @@ class CharacterManager {
     void draw(sf::RenderWindow& window);
 
     template <typename... Args> void createPlayer(Args&&... args) {
-        mCharacters.emplace(createCharacterId(),
-                            std::make_shared<Player>(std::forward<Args>(args)...));
+        const Character::IdType id{createCharacterId()};
+        mCharacters.emplace(id,
+                            std::make_shared<Player>(id, std::forward<Args>(args)...));
     }
 
     template <typename... Args> void createBall(Args&&... args) {
-        mCharacters.emplace(createCharacterId(),
-                            std::make_shared<BallEnemy>(std::forward<Args>(args)...));
+        const Character::IdType id{createCharacterId()};
+        mCharacters.emplace(id,
+                            std::make_shared<BallEnemy>(id, std::forward<Args>(args)...));
     }
 
     template <typename... Args> void createCoily(Args&&... args) {
-        mCharacters.emplace(createCharacterId(),
-                            std::make_shared<CoilyEnemy>(std::forward<Args>(args)...));
+        const Character::IdType id{createCharacterId()};
+        mCharacters.emplace(
+            id, std::make_shared<CoilyEnemy>(id, std::forward<Args>(args)...));
     }
 
   private:
-    using IdType = std::uint16_t;
-
-    IdType createCharacterId() {
-        static IdType idGen{0U};
+    Character::IdType createCharacterId() {
+        static Character::IdType idGen{0U};
         return idGen++;
     }
 
     pyramid::Pyramid& mPyramid;
-    std::unordered_map<IdType, std::shared_ptr<Character>> mCharacters;
+    std::unordered_map<Character::IdType, std::shared_ptr<Character>> mCharacters;
 };
 
 #endif // CHARACTER_MANAGER_HPP

@@ -32,8 +32,6 @@ int main() {
 
     CharacterManager characterManager{pyramid};
     characterManager.createPlayer(keyHandler, pyramid::CubePosition{0, 0});
-    characterManager.createBall();
-    // characterManager.createCoily();
     characterManager.initialize();
 
     std::atomic_bool runInputHandler{true};
@@ -61,10 +59,14 @@ int main() {
         }
     }};
 
+    int cycleCount{0};
     while (window.isOpen()) {
         std::chrono::steady_clock::time_point begin_loop{
             std::chrono::steady_clock::now()};
 
+        if (cycleCount % 7 == 0) {
+            characterManager.createBall();
+        }
         characterManager.update();
 
         window.clear();
@@ -74,6 +76,8 @@ int main() {
         window.draw(keyStatusDrawable);
 
         window.display();
+
+        ++cycleCount;
 
         std::chrono::steady_clock::time_point end_processing{
             std::chrono::steady_clock::now()};

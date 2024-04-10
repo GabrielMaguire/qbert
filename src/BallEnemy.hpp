@@ -10,7 +10,7 @@
 
 class BallEnemy : public Character {
   public:
-    BallEnemy() {
+    BallEnemy(Character::IdType id) : Character{id} {
         constexpr float kRadius{10.0F};
         mSprite.setRadius(kRadius);
         mSprite.setOrigin(kRadius, kRadius);
@@ -19,7 +19,7 @@ class BallEnemy : public Character {
 
     void draw(sf::RenderWindow& window) const override { window.draw(mSprite); }
 
-    pyramid::Movement getMovement() override {
+    pyramid::Movement getMovement() const override {
         static bool toggle{false};
         toggle = !toggle;
 
@@ -30,8 +30,12 @@ class BallEnemy : public Character {
         mSprite.setPosition(spritePos);
     }
 
-    pyramid::CubeAction getCubeAction() override {
+    pyramid::CubeAction getCubeAction() const override {
         return pyramid::CubeAction::kNone;
+    }
+
+    CharacterInteraction getInteraction() const override {
+        return CharacterInteraction::kHostile;
     }
 
   private:
