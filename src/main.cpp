@@ -1,5 +1,6 @@
 #include "CharacterManager.hpp"
 #include "CubePosition.hpp"
+#include "GameLoopTimer.hpp"
 #include "KeyHandler.hpp"
 #include "KeyStatusDrawable.hpp"
 #include "Pyramid.hpp"
@@ -28,12 +29,6 @@ int main() {
     KeyHandler keyHandler;
     KeyStatusDrawable keyStatusDrawable(keyHandler, font);
 
-    pyramid::Pyramid pyramid{sf::Vector2f{window.getSize().x / 2.0F, 200.0F}};
-
-    CharacterManager characterManager{pyramid};
-    characterManager.createPlayer(keyHandler, pyramid::CubePosition{0, 0});
-    characterManager.initialize();
-
     std::atomic_bool runInputHandler{true};
 
     std::thread inputHandler{[&runInputHandler, &window, &keyHandler] {
@@ -59,10 +54,17 @@ int main() {
         }
     }};
 
+    GameLoopTimer gameLoopTimer{std::chrono::milliseconds{750U}};
+
+    pyramid::Pyramid pyramid{sf::Vector2f{window.getSize().x / 2.0F, 200.0F}};
+
+    CharacterManager characterManager{pyramid};
+    characterManager.createPlayer(keyHandler, pyramid::CubePosition{0, 0});
+    characterManager.initialize();
+
     int cycleCount{0};
     while (window.isOpen()) {
-        std::chrono::steady_clock::time_point begin_loop{
-            std::chrono::steady_clock::now()};
+        gameLoopTimer.begin();
 
         if (cycleCount % 7 == 0) {
             characterManager.createBall();
@@ -79,12 +81,7 @@ int main() {
 
         ++cycleCount;
 
-        std::chrono::steady_clock::time_point end_processing{
-            std::chrono::steady_clock::now()};
-        std::chrono::duration<double, std::milli> processing_dt{end_processing -
-                                                                begin_loop};
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(500U) - processing_dt);
+        std::this_thread::sleep_for(gameLoopTimer.getLoopSleepTime_ms());
     }
 
     runInputHandler = false;
