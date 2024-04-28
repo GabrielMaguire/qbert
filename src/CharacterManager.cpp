@@ -87,6 +87,10 @@ void CharacterManager::update() {
     for (const Character::IdType id : hostileCollisionCharacterIds) {
         mCharacters.erase(id);
     }
+
+    for (auto& [id, character] : mCharacters) {
+        character->updateLoopCompleteCallback();
+    }
 }
 
 void CharacterManager::draw(sf::RenderWindow& window) {

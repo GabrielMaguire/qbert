@@ -3,9 +3,11 @@
 
 #include "KeyHandler.hpp"
 
-#include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Text.hpp>
+#include "SFML/Graphics/Drawable.hpp"
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/RenderTarget.hpp"
+#include "SFML/Graphics/Text.hpp"
+
 #include <array>
 #include <cstdint>
 
@@ -18,10 +20,10 @@ class KeyStatusDrawable : public sf::Drawable {
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
         constexpr uint8_t kNumKeys{4U};
         std::array<sf::Text, kNumKeys> keyTextList{
-            sf::Text{"Left : " + std::to_string(mKeyHandler.left()), mFont, 20},
-            sf::Text{"Right: " + std::to_string(mKeyHandler.right()), mFont, 20},
-            sf::Text{"Up   : " + std::to_string(mKeyHandler.up()), mFont, 20},
-            sf::Text{"Down : " + std::to_string(mKeyHandler.down()), mFont, 20},
+            sf::Text{"Left : " + std::to_string(mKeyHandler.isLeftActive()), mFont, 20},
+            sf::Text{"Right: " + std::to_string(mKeyHandler.isRightActive()), mFont, 20},
+            sf::Text{"Up   : " + std::to_string(mKeyHandler.isUpActive()), mFont, 20},
+            sf::Text{"Down : " + std::to_string(mKeyHandler.isDownActive()), mFont, 20},
         };
 
         for (uint8_t i = 0U; i < kNumKeys; ++i) {

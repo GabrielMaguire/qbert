@@ -24,15 +24,17 @@ class Character {
     virtual pyramid::CubeAction getCubeAction() const = 0;
     virtual CharacterInteraction getInteraction() const = 0;
 
-    IdType getId() const { return mId; }
-    pyramid::CubePosition getPosition() const { return mPosition; }
-    pyramid::CubePosition getPreviousPosition() const { return mPreviousPosition; }
-    bool isNewPosition() const { return mPosition != mPreviousPosition; }
-
     virtual void setPosition(const pyramid::CubePosition& cubePosition) {
         mPreviousPosition = mPosition;
         mPosition = cubePosition;
     }
+
+    virtual void updateLoopCompleteCallback() {}
+
+    IdType getId() const { return mId; }
+    pyramid::CubePosition getPosition() const { return mPosition; }
+    pyramid::CubePosition getPreviousPosition() const { return mPreviousPosition; }
+    bool isNewPosition() const { return mPosition != mPreviousPosition; }
 
   private:
     const IdType mId;

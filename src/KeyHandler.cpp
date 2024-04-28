@@ -29,4 +29,8 @@ void KeyHandler::update(const sf::Keyboard::Key& key, const bool active) {
     if (!active) {
         mCurrentMovement = Movement::kNone;
     }
+
+    for (const KeyHandlerCallback& callback : mCallbackList) {
+        callback(mCurrentMovement);
+    }
 }

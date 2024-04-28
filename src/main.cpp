@@ -59,7 +59,7 @@ int main() {
     pyramid::Pyramid pyramid{sf::Vector2f{window.getSize().x / 2.0F, 200.0F}};
 
     CharacterManager characterManager{pyramid};
-    characterManager.createPlayer(keyHandler, pyramid::CubePosition{0, 0});
+    characterManager.createPlayer(keyHandler, gameLoopTimer, pyramid::CubePosition{0, 0});
     characterManager.initialize();
 
     int cycleCount{0};
@@ -81,7 +81,7 @@ int main() {
 
         ++cycleCount;
 
-        std::this_thread::sleep_for(gameLoopTimer.getLoopSleepTime_ms());
+        std::this_thread::sleep_for(gameLoopTimer.getTimeToEnd_ms());
     }
 
     runInputHandler = false;

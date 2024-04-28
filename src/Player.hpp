@@ -3,18 +3,28 @@
 
 #include "Character.hpp"
 #include "CubePosition.hpp"
+#include "GameLoopTimer.hpp"
 #include "KeyHandler.hpp"
 #include "Movement.hpp"
 
-#include "Pyramid.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
 #include "SFML/Graphics/Color.hpp"
 
+#include <chrono>
+#include <cstdint>
+#include <functional>
+#include <iostream>
+#include <mutex>
+#include <string>
+
 class Player : public Character {
   public:
-    Player(Character::IdType id, const KeyHandler& keyHandler,
+    Player(Character::IdType id, KeyHandler& keyHandler, GameLoopTimer& gameLoopTimer,
            pyramid::CubePosition cubePos = {})
-        : mKeyHandler{keyHandler}, Character{id, cubePos} {
+        : mKeyHandler{keyHandler}, mGameLoopTimer{gameLoopTimer}, Character{id, cubePos} {
+        keyHandler.registerCallback(
+            std::bind(&Player::keyHandlerCallback, this, std::placeholders::_1));
+
         constexpr float kRadius{20.0F};
         mSprite.setRadius(kRadius);
         mSprite.setOrigin(kRadius, kRadius);
@@ -24,26 +34,18 @@ class Player : public Character {
     void draw(sf::RenderWindow& window) const override { window.draw(mSprite); }
 
     pyramid::Movement getMovement() const override {
-        switch (mKeyHandler.getMovement()) {
+        std::lock_guard lock{mMovementMutex};
+        switch (mMovement) {
         case Movement::kNone:
             return pyramid::Movement::kNone;
-            break;
-
         case Movement::kLeft:
             return pyramid::Movement::kUpLeft;
-            break;
-
         case Movement::kRight:
             return pyramid::Movement::kDownRight;
-            break;
-
         case Movement::kUp:
             return pyramid::Movement::kUpRight;
-            break;
-
         case Movement::kDown:
             return pyramid::Movement::kDownLeft;
-            break;
         }
     }
 
@@ -59,9 +61,33 @@ class Player : public Character {
         return CharacterInteraction::kVulnerable;
     }
 
+    void keyHandlerCallback(Movement movement) {
+        std::lock_guard lock{mMovementMutex};
+        switch (movement) {
+        case Movement::kNone:
+            break;
+        case Movement::kLeft:
+        case Movement::kRight:
+        case Movement::kUp:
+        case Movement::kDown:
+            mMovement = movement;
+            break;
+        }
+    }
+
+    void updateLoopCompleteCallback() override {
+        std::lock_guard lock{mMovementMutex};
+        mMovement = Movement::kNone;
+    }
+
   private:
     sf::CircleShape mSprite;
-    const KeyHandler& mKeyHandler;
+
+    KeyHandler& mKeyHandler;
+    const GameLoopTimer& mGameLoopTimer;
+
+    Movement mMovement{Movement::kNone};
+    mutable std::mutex mMovementMutex;
 };
 
 #endif // PLAYER_HPP
