@@ -2,13 +2,12 @@
 #define BALL_ENEMY_HPP
 
 #include "Character.hpp"
+#include "CharacterUtils.hpp"
 #include "Movement.hpp"
 
 #include "SFML/Graphics/CircleShape.hpp"
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/System/Vector2.hpp"
-
-#include <random>
 
 class BallEnemy : public Character {
   public:
@@ -37,12 +36,6 @@ class BallEnemy : public Character {
 
   private:
     sf::CircleShape mSprite;
-
-    pyramid::Movement getRandomLeftRight() const {
-        static auto gen = std::bind(std::uniform_int_distribution<>(0, 1),
-                                    std::default_random_engine());
-        return gen() ? pyramid::Movement::kDownLeft : pyramid::Movement::kDownRight;
-    }
 };
 
 #endif // BALL_ENEMY_HPP
