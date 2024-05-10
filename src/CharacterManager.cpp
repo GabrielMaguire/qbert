@@ -126,6 +126,7 @@ void CharacterManager::update() {
                    hostileCollisionCharacterIds.end(),
                    std::inserter(charactersToRemove, charactersToRemove.begin()));
     for (const Character::IdType id : charactersToRemove) {
+        mCharacters.at(id)->onCharacterRemoved();
         mCharacters.erase(id);
     }
 

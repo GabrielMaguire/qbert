@@ -30,6 +30,7 @@ class Character {
     }
 
     virtual void updateLoopCompleteCallback() {}
+    virtual void onCharacterRemoved() {}
 
     IdType getId() const { return mId; }
     pyramid::CubePosition getPosition() const { return mPosition; }

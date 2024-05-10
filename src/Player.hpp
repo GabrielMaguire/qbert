@@ -10,18 +10,16 @@
 #include "SFML/Graphics/CircleShape.hpp"
 #include "SFML/Graphics/Color.hpp"
 
-#include <chrono>
-#include <cstdint>
+#include <atomic>
 #include <functional>
-#include <iostream>
 #include <mutex>
-#include <string>
 
 class Player : public Character {
   public:
     Player(Character::IdType id, KeyHandler& keyHandler, GameLoopTimer& gameLoopTimer,
-           pyramid::CubePosition cubePos = {})
-        : mKeyHandler{keyHandler}, mGameLoopTimer{gameLoopTimer}, Character{id, cubePos} {
+           std::atomic_bool& isPlayerAlive, pyramid::CubePosition cubePos = {})
+        : mKeyHandler{keyHandler}, mGameLoopTimer{gameLoopTimer},
+          mIsPlayerAlive{isPlayerAlive}, Character{id, cubePos} {
         keyHandler.registerCallback(
             std::bind(&Player::keyHandlerCallback, this, std::placeholders::_1));
 
@@ -80,11 +78,14 @@ class Player : public Character {
         mMovement = Movement::kNone;
     }
 
+    void onCharacterRemoved() override { mIsPlayerAlive = false; }
+
   private:
     sf::CircleShape mSprite;
 
     KeyHandler& mKeyHandler;
     const GameLoopTimer& mGameLoopTimer;
+    std::atomic_bool& mIsPlayerAlive;
 
     Movement mMovement{Movement::kNone};
     mutable std::mutex mMovementMutex;
