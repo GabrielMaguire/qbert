@@ -8,8 +8,10 @@
 #include "Pyramid.hpp"
 
 #include <memory>
+#include <set>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 class CharacterManager {
   public:
@@ -38,10 +40,23 @@ class CharacterManager {
     }
 
   private:
+    using CollisionList = std::vector<std::shared_ptr<Character>>;
+    struct PositionInfo {
+        bool hostilePresent{false};
+        CollisionList collisionList;
+    };
+    using CollisionMap = std::unordered_map<pyramid::CubePosition, PositionInfo>;
+
     Character::IdType createCharacterId() {
         static Character::IdType idGen{0U};
         return idGen++;
     }
+
+    std::set<Character::IdType>
+    getHostileCharacterCollisions(const CollisionMap& collisionMap) const;
+
+    void addCharacterToCollisionMap(CollisionMap& collisionMap,
+                                    const std::shared_ptr<Character>& character) const;
 
     pyramid::Pyramid& mPyramid;
     std::unordered_map<Character::IdType, std::shared_ptr<Character>> mCharacters;

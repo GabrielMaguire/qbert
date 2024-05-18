@@ -20,34 +20,7 @@ void CharacterManager::initialize() {
 }
 
 void CharacterManager::update() {
-    using CollisionList = std::vector<std::shared_ptr<Character>>;
-    struct PositionInfo {
-        bool hostilePresent{false};
-        std::vector<std::shared_ptr<Character>> collisionList;
-    };
-    using CollisionMap = std::unordered_map<pyramid::CubePosition, PositionInfo>;
-
-    static CollisionMap previousCollisionMap{};
-    CollisionMap currentCollisionMap{};
-
-    auto addCharacterToCollisionMap = [](CollisionMap& collisionMap,
-                                         const std::shared_ptr<Character>& character) {
-        const pyramid::CubePosition position{character->getPosition()};
-        const bool isHostile =
-            character->getInteraction() == CharacterInteraction::kHostile;
-
-        if (const auto itr{collisionMap.find(position)}; itr != collisionMap.end()) {
-            // Add character to existing collision list
-            auto& [collisionPosition, positionInfo]{*itr};
-            positionInfo.hostilePresent = positionInfo.hostilePresent || isHostile;
-            positionInfo.collisionList.emplace_back(character);
-        } else {
-            // Create new collision list and add to collision map
-            collisionMap.emplace(std::make_pair(
-                position, PositionInfo{isHostile, std::vector{character}}));
-        }
-    };
-
+    CollisionMap collisionMap{};
     std::set<Character::IdType> outOfBoundsCharacterIds{};
 
     for (auto& [id, character] : mCharacters) {
@@ -64,7 +37,7 @@ void CharacterManager::update() {
 
         character->setSpritePosition(mPyramid.characterPositionToVector(updatedPosition));
 
-        addCharacterToCollisionMap(currentCollisionMap, character);
+        addCharacterToCollisionMap(collisionMap, character);
 
         if (character->isNewPosition()) {
             switch (character->getCubeAction()) {
@@ -82,8 +55,43 @@ void CharacterManager::update() {
         }
     }
 
-    std::set<Character::IdType> hostileCollisionCharacterIds{};
+    std::set<Character::IdType> hostileCollisionCharacterIds =
+        getHostileCharacterCollisions(collisionMap);
 
+    std::set<Character::IdType> charactersToRemove;
+    std::set_union(outOfBoundsCharacterIds.begin(), outOfBoundsCharacterIds.end(),
+                   hostileCollisionCharacterIds.begin(),
+                   hostileCollisionCharacterIds.end(),
+                   std::inserter(charactersToRemove, charactersToRemove.begin()));
+    for (const Character::IdType id : charactersToRemove) {
+        mCharacters.at(id)->onCharacterRemoved();
+        mCharacters.erase(id);
+    }
+
+    for (auto& [id, character] : mCharacters) {
+        character->endUpdateLoop();
+    }
+}
+
+void CharacterManager::addCharacterToCollisionMap(
+    CollisionMap& collisionMap, const std::shared_ptr<Character>& character) const {
+    const pyramid::CubePosition position{character->getPosition()};
+    const bool isHostile = character->getInteraction() == CharacterInteraction::kHostile;
+
+    if (const auto itr{collisionMap.find(position)}; itr != collisionMap.end()) {
+        // Add character to existing collision list
+        auto& [collisionPosition, positionInfo]{*itr};
+        positionInfo.hostilePresent = positionInfo.hostilePresent || isHostile;
+        positionInfo.collisionList.emplace_back(character);
+    } else {
+        // Create new collision list and add to collision map
+        collisionMap.emplace(
+            std::make_pair(position, PositionInfo{isHostile, std::vector{character}}));
+    }
+}
+
+std::set<Character::IdType>
+CharacterManager::getHostileCharacterCollisions(const CollisionMap& collisionMap) const {
     auto isSwapWithHostile = [](const std::shared_ptr<Character>& characterUnderTest,
                                 const CollisionMap& collisionMap) -> bool {
         if (const auto itr{collisionMap.find(characterUnderTest->getPreviousPosition())};
@@ -100,7 +108,9 @@ void CharacterManager::update() {
         return false;
     };
 
-    for (const auto& [position, info] : currentCollisionMap) {
+    std::set<Character::IdType> hostileCollisionCharacterIds{};
+
+    for (const auto& [position, info] : collisionMap) {
         // Resolve same position hostile x vulnerable collisions
         if (info.hostilePresent && info.collisionList.size() > 1U) {
             for (const auto& character : info.collisionList) {
@@ -114,27 +124,13 @@ void CharacterManager::update() {
         for (const auto& character : info.collisionList) {
             if (character->getInteraction() == CharacterInteraction::kVulnerable &&
                 character->isNewPosition() &&
-                isSwapWithHostile(character, currentCollisionMap)) {
+                isSwapWithHostile(character, collisionMap)) {
                 hostileCollisionCharacterIds.emplace(character->getId());
             }
         }
     }
 
-    previousCollisionMap = std::move(currentCollisionMap);
-
-    std::set<Character::IdType> charactersToRemove;
-    std::set_union(outOfBoundsCharacterIds.begin(), outOfBoundsCharacterIds.end(),
-                   hostileCollisionCharacterIds.begin(),
-                   hostileCollisionCharacterIds.end(),
-                   std::inserter(charactersToRemove, charactersToRemove.begin()));
-    for (const Character::IdType id : charactersToRemove) {
-        mCharacters.at(id)->onCharacterRemoved();
-        mCharacters.erase(id);
-    }
-
-    for (auto& [id, character] : mCharacters) {
-        character->endUpdateLoop();
-    }
+    return hostileCollisionCharacterIds;
 }
 
 void CharacterManager::draw(sf::RenderWindow& window) {
