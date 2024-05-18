@@ -2,50 +2,33 @@
 #define COILY_ENEMY_HPP
 
 #include "Character.hpp"
+#include "CharacterUtils.hpp"
+#include "KeyHandler.hpp"
 #include "Movement.hpp"
+#include "Pyramid.hpp"
 
 #include "SFML/Graphics/CircleShape.hpp"
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/System/Vector2.hpp"
 
+#include <atomic>
+
 class CoilyEnemy : public Character {
   public:
-    CoilyEnemy(Character::IdType id) : Character{id} {
+    CoilyEnemy(Character::IdType id, const pyramid::Pyramid& map,
+               std::atomic_bool& isCoilyAlive)
+        : Character{id}, mMap{map}, mIsCoilyAlive{isCoilyAlive} {
         constexpr float kRadius{20.0F};
         mSprite.setRadius(kRadius);
         mSprite.setOrigin(kRadius, kRadius);
         mSprite.setFillColor(sf::Color::Magenta);
+
+        mIsCoilyAlive = true;
     }
 
     void draw(sf::RenderWindow& window) const override { window.draw(mSprite); }
 
-    pyramid::Movement getMovement() const override {
-        static pyramid::Movement movement{pyramid::Movement::kDownLeft};
-
-        switch (movement) {
-        case pyramid::Movement::kNone:
-            movement = pyramid::Movement::kUpRight;
-            break;
-
-        case pyramid::Movement::kUpLeft:
-            movement = pyramid::Movement::kUpRight;
-            break;
-
-        case pyramid::Movement::kUpRight:
-            movement = pyramid::Movement::kDownLeft;
-            break;
-
-        case pyramid::Movement::kDownLeft:
-            movement = pyramid::Movement::kDownRight;
-            break;
-
-        case pyramid::Movement::kDownRight:
-            movement = pyramid::Movement::kUpLeft;
-            break;
-        }
-
-        return movement;
-    }
+    pyramid::Movement getMovement() const override { return mMovement; }
 
     void setSpritePosition(const sf::Vector2f& spritePos) override {
         mSprite.setPosition(spritePos);
@@ -59,8 +42,33 @@ class CoilyEnemy : public Character {
         return CharacterInteraction::kHostile;
     }
 
+    void beginUpdateLoop() override {
+        switch (mState) {
+        case State::kBall: {
+            pyramid::Movement movement = getRandomDownwardMovement();
+            if (!mMap.isPositionInBounds(
+                    mMap.getUpdatedPosition(getPosition(), movement))) {
+                movement = pyramid::Movement::kNone;
+                mState = State::kCoily;
+            }
+            mMovement = movement;
+        } break;
+        case State::kCoily:
+            mMovement = getRandomUpwardMovement();
+            break;
+        }
+    }
+
+    void onCharacterRemoved() override { mIsCoilyAlive = false; }
+
   private:
+    enum class State { kBall, kCoily };
+
+    State mState{State::kBall};
+    pyramid::Movement mMovement{pyramid::Movement::kNone};
     sf::CircleShape mSprite;
+    const pyramid::Pyramid& mMap;
+    std::atomic_bool& mIsCoilyAlive;
 };
 
 #endif // COILY_ENEMY_HPP

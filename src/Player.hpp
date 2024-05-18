@@ -73,7 +73,7 @@ class Player : public Character {
         }
     }
 
-    void updateLoopCompleteCallback() override {
+    void endUpdateLoop() override {
         std::lock_guard lock{mMovementMutex};
         mMovement = Movement::kNone;
     }

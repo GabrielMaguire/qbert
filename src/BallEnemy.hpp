@@ -20,7 +20,7 @@ class BallEnemy : public Character {
 
     void draw(sf::RenderWindow& window) const override { window.draw(mSprite); }
 
-    pyramid::Movement getMovement() const override { return getRandomLeftRight(); }
+    pyramid::Movement getMovement() const override { return getRandomDownwardMovement(); }
 
     void setSpritePosition(const sf::Vector2f& spritePos) override {
         mSprite.setPosition(spritePos);

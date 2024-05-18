@@ -59,6 +59,7 @@ int main() {
     pyramid::Pyramid pyramid{sf::Vector2f{window.getSize().x / 2.0F, 200.0F}};
 
     std::atomic_bool isPlayerAlive{true};
+    std::atomic_bool isCoilyAlive{false};
 
     CharacterManager characterManager{pyramid};
     characterManager.createPlayer(keyHandler, gameLoopTimer, isPlayerAlive,
@@ -72,6 +73,10 @@ int main() {
         if (cycleCount % 7 == 0) {
             characterManager.createBall();
         }
+        if (!isCoilyAlive) {
+            characterManager.createCoily(pyramid, isCoilyAlive);
+        }
+
         characterManager.update();
 
         window.clear();

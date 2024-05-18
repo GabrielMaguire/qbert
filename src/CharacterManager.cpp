@@ -51,6 +51,8 @@ void CharacterManager::update() {
     std::set<Character::IdType> outOfBoundsCharacterIds{};
 
     for (auto& [id, character] : mCharacters) {
+        character->beginUpdateLoop();
+
         pyramid::CubePosition updatedPosition{mPyramid.getUpdatedPosition(
             character->getPosition(), character->getMovement())};
         character->setPosition(updatedPosition);
@@ -131,7 +133,7 @@ void CharacterManager::update() {
     }
 
     for (auto& [id, character] : mCharacters) {
-        character->updateLoopCompleteCallback();
+        character->endUpdateLoop();
     }
 }
 

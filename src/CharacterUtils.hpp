@@ -3,6 +3,7 @@
 
 #include "Movement.hpp"
 
-pyramid::Movement getRandomLeftRight();
+pyramid::Movement getRandomDownwardMovement();
+pyramid::Movement getRandomUpwardMovement();
 
 #endif

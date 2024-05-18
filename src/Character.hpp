@@ -29,7 +29,9 @@ class Character {
         mPosition = cubePosition;
     }
 
-    virtual void updateLoopCompleteCallback() {}
+    // Optional callbacks
+    virtual void beginUpdateLoop() {}
+    virtual void endUpdateLoop() {}
     virtual void onCharacterRemoved() {}
 
     IdType getId() const { return mId; }
